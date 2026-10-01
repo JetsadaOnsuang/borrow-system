@@ -40,16 +40,21 @@
 
   const byId = (id) => document.getElementById(id);
   const toast = byId("toast");
-  const DEMO_USERNAME = "User";
-  const DEMO_PASSWORD = "User1234";
+  const DEMO_ACCOUNTS = {
+    User: { password: "User1234", role: "user", roleLabel: "ผู้ยืมอุปกรณ์" },
+    Admin: { password: "Admin1234", role: "admin", roleLabel: "ผู้ดูแลระบบ" }
+  };
   const SESSION_KEY = "it-inventory-user";
   let toastTimer;
 
   function setAuthenticated(username) {
-    document.body.classList.toggle("authenticated", Boolean(username));
-    if (username) {
+    const account = DEMO_ACCOUNTS[username];
+    document.body.classList.toggle("authenticated", Boolean(account));
+    document.body.classList.toggle("admin-user", account?.role === "admin");
+    if (account) {
       sessionStorage.setItem(SESSION_KEY, username);
       byId("current-user").textContent = username;
+      byId("current-role").textContent = account.roleLabel;
       byId("borrow-form").elements.borrower.value = username;
       byId("borrow-form").elements.borrower.readOnly = true;
     } else {
@@ -59,13 +64,15 @@
   }
 
   const existingUser = sessionStorage.getItem(SESSION_KEY);
-  setAuthenticated(existingUser === DEMO_USERNAME ? existingUser : "");
+  setAuthenticated(DEMO_ACCOUNTS[existingUser] ? existingUser : "");
   byId("login-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
-    if (values.get("username") === DEMO_USERNAME && values.get("password") === DEMO_PASSWORD) {
+    const username = String(values.get("username"));
+    const account = DEMO_ACCOUNTS[username];
+    if (account && values.get("password") === account.password) {
       byId("login-error").classList.add("hidden");
-      setAuthenticated(DEMO_USERNAME);
+      setAuthenticated(username);
     } else {
       byId("login-error").classList.remove("hidden");
     }
@@ -97,7 +104,7 @@
 
   function borrowEquipment({ borrower, equipmentId, quantity, dueDate }) {
     const signedInUser = sessionStorage.getItem(SESSION_KEY);
-    if (signedInUser !== DEMO_USERNAME || !document.body.classList.contains("authenticated")) {
+    if (!DEMO_ACCOUNTS[signedInUser] || !document.body.classList.contains("authenticated")) {
       throw new Error("กรุณาเข้าสู่ระบบก่อนทำรายการยืม");
     }
     if (borrower !== signedInUser) throw new Error("ชื่อผู้ยืมต้องตรงกับบัญชีที่เข้าสู่ระบบ");
@@ -127,6 +134,9 @@
   }
 
   function returnEquipment(loanId) {
+    if (DEMO_ACCOUNTS[sessionStorage.getItem(SESSION_KEY)]?.role !== "admin") {
+      throw new Error("เฉพาะผู้ดูแลระบบเท่านั้นที่รับคืนอุปกรณ์ได้");
+    }
     const loan = data.loans.find((entry) => entry.id === loanId);
     if (!loan || loan.returnedAt) throw new Error("ไม่พบรายการยืมที่ยังค้างคืน");
     loan.returnedAt = new Date().toISOString();
@@ -222,6 +232,11 @@
             notify(error.message, true);
           }
         });
+        if (DEMO_ACCOUNTS[sessionStorage.getItem(SESSION_KEY)]?.role !== "admin") {
+          action.disabled = true;
+          action.title = "เฉพาะผู้ดูแลระบบเท่านั้นที่รับคืนอุปกรณ์ได้";
+          action.classList.add("disabled-action");
+        }
       }
       row.append(main, meta, action);
       list.append(row);
@@ -266,6 +281,10 @@
 
   byId("add-item-form").addEventListener("submit", (event) => {
     event.preventDefault();
+    if (DEMO_ACCOUNTS[sessionStorage.getItem(SESSION_KEY)]?.role !== "admin") {
+      notify("เฉพาะผู้ดูแลระบบเท่านั้นที่เพิ่มอุปกรณ์ได้", true);
+      return;
+    }
     const form = event.currentTarget;
     const values = new FormData(form);
     const name = String(values.get("name")).trim();

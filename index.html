@@ -19,7 +19,7 @@
         <label>รหัสผ่าน<input name="password" type="password" autocomplete="current-password" required placeholder="กรอกรหัสผ่าน"></label>
         <button class="button button-primary button-wide" type="submit">เข้าสู่ระบบ <span aria-hidden="true">→</span></button>
         <p class="login-error hidden" id="login-error" role="alert">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
-        <p class="login-hint">บัญชีเดโม: User / User1234</p>
+        <p class="login-hint">ผู้ยืม: <strong>User / User1234</strong><br>ผู้ดูแลระบบ: <strong>Admin / Admin1234</strong></p>
       </form>
     </main>
     <div class="app-shell">
@@ -46,7 +46,7 @@
             <div class="eyebrow">IT ASSET MANAGEMENT</div>
             <h1>ระบบยืม-คืนอุปกรณ์ไอที</h1>
           </div>
-          <div class="user-controls"><div class="user-chip"><span class="avatar">IT</span><span><strong id="current-user">User</strong><small>ผู้ใช้งาน</small></span></div><button class="logout-button" id="logout-button" type="button">ออกจากระบบ</button></div>
+          <div class="user-controls"><div class="user-chip"><span class="avatar">IT</span><span><strong id="current-user">User</strong><small id="current-role">ผู้ยืมอุปกรณ์</small></span></div><button class="logout-button" id="logout-button" type="button">ออกจากระบบ</button></div>
         </header>
 
         <section id="dashboard" class="section">
