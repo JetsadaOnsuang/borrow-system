@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b46">
+    <title>ยืม-คืนอุปกรณ์ไอที | IT Inventory</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="login-screen" id="login-screen">
+      <form class="login-card" id="login-form">
+        <span class="brand-mark login-mark" aria-hidden="true">IT</span>
+        <div class="eyebrow">IT ASSET MANAGEMENT</div>
+        <h1>เข้าสู่ระบบ</h1>
+        <p>ลงชื่อเข้าใช้เพื่อทำรายการยืมอุปกรณ์ไอที</p>
+        <label>ชื่อผู้ใช้<input name="username" autocomplete="username" required placeholder="กรอกชื่อผู้ใช้"></label>
+        <label>รหัสผ่าน<input name="password" type="password" autocomplete="current-password" required placeholder="กรอกรหัสผ่าน"></label>
+        <button class="button button-primary button-wide" type="submit">เข้าสู่ระบบ <span aria-hidden="true">→</span></button>
+        <p class="login-error hidden" id="login-error" role="alert">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
+        <p class="login-hint">บัญชีเดโม: User / User1234</p>
+      </form>
+    </main>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="IT Inventory หน้าหลัก">
+          <span class="brand-mark" aria-hidden="true">IT</span>
+          <span><strong>IT Inventory</strong><small>ระบบยืม-คืนอุปกรณ์</small></span>
+        </a>
+        <div class="side-label">WORKSPACE</div>
+        <nav aria-label="เมนูหลัก">
+          <a class="nav-link active" href="#dashboard"><span aria-hidden="true">▦</span> ภาพรวม</a>
+          <a class="nav-link" href="#inventory"><span aria-hidden="true">▤</span> คลังอุปกรณ์</a>
+          <a class="nav-link" href="#loans"><span aria-hidden="true">↗</span> รายการยืม-คืน</a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="online-dot"></div>
+          <div><strong>โหมด GitHub Pages</strong><small>ข้อมูลจัดเก็บในเบราว์เซอร์นี้</small></div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">IT ASSET MANAGEMENT</div>
+            <h1>ระบบยืม-คืนอุปกรณ์ไอที</h1>
+          </div>
+          <div class="user-controls"><div class="user-chip"><span class="avatar">IT</span><span><strong id="current-user">User</strong><small>ผู้ใช้งาน</small></span></div><button class="logout-button" id="logout-button" type="button">ออกจากระบบ</button></div>
+        </header>
+
+        <section id="dashboard" class="section">
+          <div class="section-heading">
+            <div><h2>ภาพรวมคลังอุปกรณ์</h2><p>ติดตามจำนวนอุปกรณ์และสถานะการยืมได้ในที่เดียว</p></div>
+            <span class="today" id="today"></span>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card"><div class="stat-icon blue">▤</div><div class="stat-label">อุปกรณ์ทั้งหมด</div><div class="stat-value" id="stat-total">0</div><div class="stat-note">ชิ้นในคลัง</div></article>
+            <article class="stat-card"><div class="stat-icon green">✓</div><div class="stat-label">พร้อมให้ยืม</div><div class="stat-value" id="stat-available">0</div><div class="stat-note">ชิ้นพร้อมใช้งาน</div></article>
+            <article class="stat-card"><div class="stat-icon amber">↗</div><div class="stat-label">กำลังถูกยืม</div><div class="stat-value" id="stat-borrowed">0</div><div class="stat-note">ชิ้นที่ยังไม่คืน</div></article>
+            <article class="stat-card"><div class="stat-icon violet">▣</div><div class="stat-label">รายการค้างคืน</div><div class="stat-value" id="stat-open">0</div><div class="stat-note">รายการยืมที่เปิดอยู่</div></article>
+          </div>
+        </section>
+
+        <section id="inventory" class="section">
+          <div class="section-heading">
+            <div><h2>คลังอุปกรณ์</h2><p>ตรวจสอบจำนวนคงเหลือก่อนทำรายการยืม</p></div>
+            <button class="button button-secondary" id="add-item-toggle" type="button">＋ เพิ่มอุปกรณ์</button>
+          </div>
+          <form class="inline-form hidden" id="add-item-form">
+            <label>ชื่ออุปกรณ์<input name="name" maxlength="80" required placeholder="เช่น จอภาพ 24 นิ้ว"></label>
+            <label>หมวดหมู่<input name="category" maxlength="40" required placeholder="เช่น จอภาพ"></label>
+            <label>จำนวนทั้งหมด<input name="quantity" type="number" min="1" max="10000" step="1" required placeholder="0"></label>
+            <button class="button button-primary" type="submit">บันทึกอุปกรณ์</button>
+          </form>
+          <div class="table-card">
+            <div class="table-toolbar"><strong>รายการอุปกรณ์</strong><label class="search-box"><span aria-hidden="true">⌕</span><input id="inventory-search" type="search" placeholder="ค้นหาอุปกรณ์..." aria-label="ค้นหาอุปกรณ์"></label></div>
+            <div class="table-scroll"><table><thead><tr><th>อุปกรณ์</th><th>หมวดหมู่</th><th>ทั้งหมด</th><th>พร้อมยืม</th><th>สถานะ</th></tr></thead><tbody id="inventory-body"></tbody></table></div>
+            <div class="empty-state hidden" id="inventory-empty">ไม่พบอุปกรณ์ที่ค้นหา</div>
+          </div>
+        </section>
+
+        <section class="section split-section">
+          <div>
+            <div class="section-heading"><div><h2>ทำรายการยืม</h2><p>ระบบจะตรวจสอบสต็อกก่อนบันทึกทุกครั้ง</p></div></div>
+            <form class="form-card" id="borrow-form">
+              <label>ชื่อผู้ยืม<input name="borrower" maxlength="80" required placeholder="ชื่อ-นามสกุล"></label>
+              <label>อุปกรณ์<select name="equipmentId" id="equipment-select" required></select></label>
+              <label>จำนวนที่ต้องการยืม<input name="quantity" type="number" min="1" max="10000" step="1" required value="1"></label>
+              <label>กำหนดคืน<input name="dueDate" type="date" required></label>
+              <button class="button button-primary button-wide" type="submit">ยืนยันการยืม <span aria-hidden="true">→</span></button>
+              <p class="form-footnote">จำนวนที่ยืมต้องไม่เกินจำนวนคงเหลือในคลัง</p>
+            </form>
+          </div>
+          <div id="loans">
+            <div class="section-heading"><div><h2>รายการยืมล่าสุด</h2><p>คืนอุปกรณ์เพื่อเพิ่มจำนวนพร้อมยืม</p></div></div>
+            <div class="table-card loan-card">
+              <div class="table-toolbar"><strong>ธุรกรรม</strong><span class="live-label"><span></span> อัปเดตทันที</span></div>
+              <div class="loan-list" id="loan-list"></div>
+              <div class="empty-state hidden" id="loans-empty">ยังไม่มีรายการยืม</div>
+            </div>
+          </div>
+        </section>
+        <footer>IT Inventory <span>•</span> ข้อมูลตัวอย่างจัดเก็บในเบราว์เซอร์ของคุณ</footer>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
